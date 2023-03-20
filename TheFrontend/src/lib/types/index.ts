@@ -60,7 +60,7 @@ export interface Request<
 export type Response<T> = T | 'error';
 
 export interface APIEndpoints {
-    session: Request<{ response: { get: any }; options: never }>;
+    session: Request<{ response: { get: User }; options: never }>;
     new: {
         course: Request<{ response: { post: LessonMetaData }; options: { post: { data: PostCourseData } }}>;
         product: Request<{ response: { post: ProductMetaData }; options: { post: { data: PostProductData } } }>;
@@ -84,6 +84,14 @@ export interface APIEndpoints {
     };
     createmeeting: Request<{ response: { get: CreateMeetingResponse }; options: never }>;
     login: Request<{ response: { get: { url: string } }; options: never }>;
+    role: Request<{ response: { get: { role: number } }; options: never }>;
+}
+
+export interface User {
+    Email: string;
+    FirstName: string;
+    LastName: string;
+    PfP: string;
 }
 
 export interface PostLesson {
