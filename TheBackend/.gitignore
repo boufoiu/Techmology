@@ -1,3 +1,7 @@
+*.log
+*.pot
+*.pyc
+__pycache__
 CourseImages/
 LessonRessources/
 ProductImages/
