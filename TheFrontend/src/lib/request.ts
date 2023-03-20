@@ -25,18 +25,17 @@ export class Request {
         if (this.options.files != null) {
             body = new FormData();
             body.append('data', JSON.stringify(this.options.data));
-            console.log(this.options.files)
             this.options.files.forEach(file => body.append('Ressources', file))
         } else if (this.options.data != null) {
             body = JSON.stringify(this.options.data);
-            headers['Content-type'] = 'application/json';
         }
+            headers['Content-type'] = 'application/json';
 
         return fetch(url, {
             method: this.method,
             body,
             headers,
-            credentials: 'include'
+            credentials: 'same-origin'
         });
     }
 }

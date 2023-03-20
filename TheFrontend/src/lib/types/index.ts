@@ -8,7 +8,7 @@ export type Options<
 > = Partial<{
     query: T['query'];
     data: T['data']; 
-    headers: string[]; 
+    headers: any; 
     files: unknown[];
     userAgentSuffix: string[];
     payloadJson: boolean;
@@ -57,7 +57,10 @@ export interface Request<
     put(options?: Options<T['options']['put'] & {}>): Promise<T['response']['put']>;
 }
 
+export type Response<T> = T | 'error';
+
 export interface APIEndpoints {
+    session: Request<{ response: { get: any }; options: never }>;
     new: {
         course: Request<{ response: { post: LessonMetaData }; options: { post: { data: PostCourseData } }}>;
         product: Request<{ response: { post: ProductMetaData }; options: { post: { data: PostProductData } } }>;
@@ -72,14 +75,12 @@ export interface APIEndpoints {
             (key: number): Request<{ response: {}; options: {} }>;
         };
     };
-    api: {
-        showfilter: {
-            Course: Request<{ response: { get: Courses }; options: { get: { query: CourseFilterQueryParameter } } }>;
-            Product: Request<{ response: { get: Products }; options: { get: { query: ProductFilterQueryParameter } } }>;
-        };
-        lessons: {
-            (key: number): Request<{ response: { get: LessonDataResponse }, options: never }>
-        };
+    showfilter: {
+        Course: Request<{ response: { get: Courses }; options: { get: { query: CourseFilterQueryParameter } } }>;
+        Product: Request<{ response: { get: Products }; options: { get: { query: ProductFilterQueryParameter } } }>;
+    };
+    lessons: {
+        (key: number): Request<{ response: { get: LessonDataResponse }, options: never }>
     };
     createmeeting: Request<{ response: { get: CreateMeetingResponse }; options: never }>;
     login: Request<{ response: { get: { url: string } }; options: never }>;
@@ -100,7 +101,12 @@ export interface PostReply {
 
 export interface Products {
     data: ProductMetaData[];
-    images: { ID: string; data: Image[] }[];
+    images: { ID: number; data: Image[] }[];
+}
+
+export interface Product {
+    data: ProductMetaData;
+    images: Image[];
 }
 
 export interface PostProductData {
@@ -109,14 +115,19 @@ export interface PostProductData {
 }
 
 export interface ProductMetaData {
-    id: string;
-    Descruption: string;
+    id: number;
+    Description: string;
     price: number;
 }
 
 export interface Courses {
     data: CourseMetaData[];
-    images: { ID: string; data: Image[] }[];
+    images: { ID: number; data: Image[] }[];
+}
+
+export interface Course {
+    data: CourseMetaData;
+    images: Image[];
 }
 
 export interface PostCourseData {
@@ -125,9 +136,9 @@ export interface PostCourseData {
 }
 
 export interface CourseMetaData {
-    id: string;
+    id: number;
     Title: string;
-    Descruption: string;
+    Description: string;
     Language: string;
 }
 
@@ -140,14 +151,14 @@ export interface LessonDataResponse {
 }
 
 export interface LessonMetaData {
-    id: string;
+    id: number;
     Title: string;
     Content: string;
     Peer_id: string;
 }
 
 export interface LessonRessource {
-    ID: string;
+    ID: number;
     Data: string;
 }
 
