@@ -89,6 +89,30 @@ def logout(request):
     return HttpResponseRedirect('/session/')
 
 
+"""
+    Returns User's role:
+    0 -> Visitor
+    1 -> User
+    2 -> Teacher
+    3 -> Admin
+"""
+@api_view(['GET'])
+def Role(request):
+    if 'email' in request.session:
+        email = request.session.get('email')
+        user = User.objects.get(Email = email)
+        try:
+            Admin.objects.get(User = user)
+            return Response({ "role": 3 })
+        except Admin.DoesNotExist:
+            try:
+                Teacher.objects.get(User = user)
+                return Response({ "role": 2 })
+            except Teacher.DoesNotExist:
+                return Response({ "role": 1 })
+    return Response({ "role": 0 })
+
+
 """Create a new course"""
 @api_view(['POST'])
 def CreateCourse(request):

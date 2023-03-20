@@ -20,8 +20,5 @@ urlpatterns = [
     path('showfilter/<str:type>/',views.ShowFilter,name="show_filter"),
     path('lessons/<int:pk>/',views.ShowLesson,name = "show_lessons"), 
     path('createmeeting/',views.CreateMeeting,name = "create_meeting") ,
-    
-    
-    
-    
+    path('role/', views.Role, name = "role")
 ]
