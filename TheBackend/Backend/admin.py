@@ -1,12 +1,19 @@
 from django.contrib import admin
 from .models import *
+from django.contrib.sessions.models import Session
 
+
+class SessionAdmin(admin.ModelAdmin):
+    def _session_data(self, obj):
+        return obj.get_decoded()
+    list_display = ['session_key', '_session_data', 'expire_date']
+admin.site.register(Session, SessionAdmin)
 
 class UserAdmin(admin.ModelAdmin):
     list_display = ['FirstName','Email']
 
 class CourseAdmin(admin.ModelAdmin):
-    list_display = ['Title','Descruption']
+    list_display = ['Title','Description']
 
 class CourseImagesAdmin(admin.ModelAdmin):
     list_display = ['Course','Image']
@@ -32,7 +39,7 @@ class AdminAdmin(admin.ModelAdmin):
 class SubscruptionAdmin(admin.ModelAdmin):
     list_display = ['User','Course']  
 
-class TeatcherAdmin(admin.ModelAdmin):
+class TeacherAdmin(admin.ModelAdmin):
     list_display = ['User']  
     
     
@@ -45,7 +52,7 @@ admin.site.register(ProductImages, ProductImagesAdmmin)
 admin.site.register(Lesson, LessonAdmin)
 admin.site.register(LessonRessources, LessonRessourcesAdmin)
 admin.site.register(Admin, AdminAdmin)
-admin.site.register(Teatcher, TeatcherAdmin)
+admin.site.register(Teacher, TeacherAdmin)
 admin.site.register(Subscription, SubscruptionAdmin)
 
 

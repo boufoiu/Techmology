@@ -7,7 +7,7 @@ class User(models.Model):
   PfP = models.URLField(max_length=250)
   
   
-class Teatcher(models.Model):
+class Teacher(models.Model):
   User = models.ForeignKey(User,on_delete=models.CASCADE)
   
 class Admin(models.Model):
@@ -15,12 +15,12 @@ class Admin(models.Model):
 
 class Product(models.Model):
   Title = models.CharField(max_length=1000)
-  Descruption = models.TextField()
+  Description = models.TextField()
   Price = models.IntegerField()
   
 class Course(models.Model):
   Title = models.CharField(max_length=1000)
-  Descruption = models.TextField()
+  Description = models.TextField()
   Langage = models.CharField(max_length=1000)
   
 class Lesson(models.Model):

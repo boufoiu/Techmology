@@ -1,4 +1,3 @@
-from asyncio.windows_events import NULL
 import base64
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -6,11 +5,10 @@ from rest_framework.response import Response
 from django.http import HttpResponseRedirect
 from .models import *
 import requests
-from .serialisers import *
+from .serializers import *
 import json
 from django.utils.crypto import get_random_string
 from django.utils import timezone
-from django.http import HttpResponseForbidden
 import jwt
 import requests
 import json
@@ -19,14 +17,6 @@ from time import time
 
 client_id="542518122844-g1gtr6env68luue9b1l7f46qfngc0n0v.apps.googleusercontent.com"
 client_secret="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"
-
-
-# Create your views here.
-
-
-@api_view(['GET'])
-def show(request):
-    return Response(request, status=status.HTTP_401_UNAUTHORIZED)
 
 
 @api_view(['GET'])
@@ -41,7 +31,7 @@ def google_login(request):
         client_id=client_id,
         redirect_uri=redirect_uri,
         scope=scope)
-    return HttpResponseRedirect(url)
+    return Response({ "url": url })
 
 
 def google_authenticate(request):
@@ -78,12 +68,11 @@ def google_authenticate(request):
 
     request.session['email'] = l['email']
 
-    return HttpResponseRedirect('http://127.0.0.1:8000/')
+    return HttpResponseRedirect('http://127.0.0.1:3000/')
 
 
 @api_view(['GET'])
 def session(request):
-    
     if 'email' in request.session:
         email = request.session.get('email')
         try:
@@ -100,7 +89,7 @@ def logout(request):
     return HttpResponseRedirect('/session/')
 
 
-"""créer un nouveau cours"""
+"""Create a new course"""
 @api_view(['POST'])
 def CreateCourse(request):
     if request.method=='POST':
@@ -109,7 +98,7 @@ def CreateCourse(request):
         except json.JSONDecodeError:
             return Response({ 'error': 'invalid json'}, status = status.HTTP_400_BAD_REQUEST)        
         Title = data['Title']
-        Descruption = data["Descruption"]
+        Description = data["Description"]
         Langage = data['Langage']
         serializer = CourseSerializer(data= data)
         if serializer.is_valid():
@@ -118,11 +107,20 @@ def CreateCourse(request):
             courses = courses.filter(Title = Title)
             courses = courses.filter(Langage = Langage)
             if len(courses) > 0:
-                return HttpResponseForbidden()
+                return Response(status=status.HTTP_400_BAD_REQUEST)
             
             if 'email' in request.session : 
+                user = User.objects.get(Email = email)
+                try:
+                    Teacher.objects.get(User = user)
+                except Teacher.DoesNotExist:
+                    try:
+                        Admin.objects.get(User = user)
+                    except Admin.DoesNotExist:
+                        return Response(status=status.HTTP_401_UNAUTHORIZED)
+
                 serializer.validated_data['Title'] = Title                
-                serializer.validated_data['Descruption'] = Descruption
+                serializer.validated_data['Description'] = Description
                 serializer.validated_data['Langage'] = Langage
                 serializer.save()
                 if 'image' in  request.FILES:
@@ -141,7 +139,7 @@ def AddImageCourse(request, serializer):
         photo.save()
  
  
-"""créat a new Lesson"""   
+"""Create a new Lesson"""   
     
 @api_view(['POST'])
 def CreateLesson(request,pk): #pk is the primary key of the corse
@@ -163,6 +161,15 @@ def CreateLesson(request,pk): #pk is the primary key of the corse
                 lesson = Lesson.objects.get(Title = Title,Peer = Peer)
             except Lesson.DoesNotExist:
                 if 'email' in request.session : 
+                    user = User.objects.get(Email = email)
+                    try:
+                        Teacher.objects.get(User = user)
+                    except Teacher.DoesNotExist:
+                        try:
+                            Admin.objects.get(User = user)
+                        except Admin.DoesNotExist:
+                            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
                     serializer.validated_data['Title'] = Title    
                     serializer.validated_data['Content'] = Content            
                     serializer.validated_data['Peer'] = Peer
@@ -184,7 +191,7 @@ def AddLessonRessources(request, serializer):
     
 
 
-"""création d'un nouveau produit"""
+"""Create a new Product"""
 @api_view(['POST'])
 def CreateProduct(request):
     if request.method=='POST':
@@ -193,7 +200,7 @@ def CreateProduct(request):
         except json.JSONDecodeError:
             return Response({ 'error': 'invalid json'}, status = status.HTTP_400_BAD_REQUEST)        
         Title = data['Title']
-        Descruption = data['Descruption']
+        Description = data['Description']
         Price = data['Price']   
         serializer = ProductSerializer(data= data)
         if serializer.is_valid():
@@ -201,8 +208,17 @@ def CreateProduct(request):
                 product = Product.objects.get(Title = Title)
             except Product.DoesNotExist:
                 if 'email' in request.session : 
+                    user = User.objects.get(Email = email)
+                    try:
+                        Teacher.objects.get(User = user)
+                    except Teacher.DoesNotExist:
+                        try:
+                            Admin.objects.get(User = user)
+                        except Admin.DoesNotExist:
+                            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
                     serializer.validated_data['Title'] = Title    
-                    serializer.validated_data['Descruption'] = Descruption            
+                    serializer.validated_data['Description'] = Description            
                     serializer.validated_data['Price'] = Price
                     serializer.save()
                     if 'images' in request.FILES:
@@ -228,7 +244,7 @@ def AddProductImages(request, serializer):
 #-------------------------------------------------------------
 
 
-"""afficher tous les cours/le produits avec un filtrage , et une recherche"""
+"""Display all Courses/Products with filter and search"""
 @api_view(['GET'])
 def ShowFilter(request,type):
     if 'email' in request.session:
@@ -241,7 +257,7 @@ def ShowFilter(request,type):
                 courses = courses.filter(Langage = request.GET.get('Langage',''))
             if 'Search' in request.GET:
                 courses = SearchCourses(courses, request.GET.get('Search'))
-            serializer = CourseSerializer(courses, many= True)
+            serializer = GetCourseSerializer(courses, many= True)
             return Response({ 'data': serializer.data, 'images': GetCourseImage(courses)}) 
         elif type == "Product":
             try:
@@ -254,10 +270,11 @@ def ShowFilter(request,type):
                 products = products.filter(Price__lte = request.GET.get('MaxPrice',''))
             if 'Search' in request.GET:
                 products = SearchCourses(products, request.GET.get('Search'))
-            serializer = ProductSerializer(products, many= True)
+            serializer = GetProductSerializer(products, many= True)
             return Response({ 'data': serializer.data, 'images': GetProductImage(products)}) 
+    return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-#@api_view(['GET'])
+
 def GetCourseImage(courses):
     images = []
     for course in courses:
@@ -288,7 +305,6 @@ def GetProductImage(products):
     return image_path
 
 
-
 def GetLessonRessources(lesson):    
     files = []
     liste = LessonRessources.objects.filter(Lesson = lesson)
@@ -302,6 +318,7 @@ def GetLessonRessources(lesson):
         file_path.append({"ID":couple[0],"Data":file_data})
     return file_path
 
+
 def SearchCourses(courses,text):
     l =text.lower().split(" ")
     while "" in l : l.remove("")
@@ -310,8 +327,7 @@ def SearchCourses(courses,text):
     for course in courses:
         exist = False
         Title = course.Title.lower().split(" ")
-        print(Title)
-        Description = course.Descruption.lower().split(" ")
+        Description = course.Description.lower().split(" ")
         i = 0
         while i< taille and not exist :
             mot = l[i]
@@ -406,24 +422,27 @@ def MakeReply(request):
     return Response(status = status.HTTP_401_UNAUTHORIZED)
 
 
-def AddTeachet(request,email):
+@api_view(['POST'])
+def AddTeacher(request):
     if 'email' in request.session:
-        email = request.session['email']    
+        email = request.session['email']
+        user = User.objects.get(Email = email)
+        email_data = request.data.email
+
         try:
-            user = User.objects.get(Email = email)
-            admin = Admin.objects.get(User =user )
+            admin = Admin.objects.get(User = user)
         except Admin.DoesNotExist:
             return Response(status = status.HTTP_401_UNAUTHORIZED)
         
         try:
-            user = User.objects.get(Email = email)
+            user = User.objects.get(Email = email_data)
         except User.DoesNotExist:
             return Response(status = status.HTTP_404_NOT_FOUND)
-        teatcher = Teatcher(User = user)
-        teatcher.save()
+        teacher = Teacher(User = user)
+        teacher.save()
         return Response(status = status.HTTP_201_CREATED)
-        
-        
+    return Response(status = status.HTTP_401_UNAUTHORIZED)
+
 
 @api_view(['GET'])
 def ShowLesson(request,pk):
@@ -431,25 +450,35 @@ def ShowLesson(request,pk):
         email = request.session['email']    
         user = User.objects.get(Email = email)
         try:
-            lesson = Lesson.objects.get(pk = pk )
+            lesson = Lesson.objects.get(pk = pk)
         except Lesson.DoesNotExist:
             return Response(status = status.HTTP_404_NOT_FOUND)
         peer_id = lesson.Peer_id
-        course = Course.objects.get(pk =peer_id )
+        course = Course.objects.get(pk = peer_id)
         try:
-            sub = Subscription.objects.get(User = user , Course = course)
+            Subscription.objects.get(User = user , Course = course)
         except Subscription.DoesNotExist:
-            return Response(status = status.HTTP_401_UNAUTHORIZED)
-        serializer = LessonSerializer(lesson)
+            try:
+                Teacher.objects.get(User=user)
+            except Teacher.DoesNotExist:
+                try:
+                    Admin.objects.get(User=user)
+                except Admin.DoesNotExist:
+                    return Response(status = status.HTTP_401_UNAUTHORIZED)
+
+        serializer = GetLessonSerializer(lesson)
         return Response({ 'data': serializer.data, 'ressources': GetLessonRessources(lesson)}) 
+    return Response(status=status.HTTP_401_UNAUTHORIZED)
     
+
+#-------------------------------------------------------------
+#-------------------------------------------------------------
+#-------------------------------------------------------------
     
+"""Generate Zoom meeting"""
     
 API_KEY = 'WfiHMIxqTPezOEDMWbh6Kg'
 API_SEC = 'NRGsDqIiuRWFYH6jvb1U65jtJhgKGuzyzx3p'
- 
-# create a function to generate a token
-# using the pyjwt library
  
  
 def generateToken():
@@ -468,42 +497,41 @@ def generateToken():
     return token
  
  
-# create json data for post requests
-meetingdetails = {"topic": "The title of your zoom meeting",
-                  "type": 2,
-                  "start_time": "2019-06-14T10: 21: 57",
-                  "duration": "45",
-                  "timezone": "Europe/Madrid",
-                  "agenda": "test",
+# JSON data for Post request
+meetingdetails = {
+    "topic": "The title of your zoom meeting",
+    "type": 2,
+    "start_time": "2019-06-14T10: 21: 57",
+    "duration": "45",
+    "timezone": "Europe/Madrid",
+    "agenda": "test",
+    "recurrence": {
+        "type": 1,
+        "repeat_interval": 1
+    },
+    "settings": {
+        "host_video": "true",
+        "participant_video": "true",
+        "join_before_host": "true",
+        "mute_upon_entry": "False",
+        "watermark": "true",
+        "audio": "voip",
+        "auto_recording": "cloud"
+    }
+}
  
-                  "recurrence": {"type": 1,
-                                 "repeat_interval": 1
-                                 },
-                  "settings": {"host_video": "true",
-                               "participant_video": "true",
-                               "join_before_host": "true",
-                               "mute_upon_entry": "False",
-                               "watermark": "true",
-                               "audio": "voip",
-                               "auto_recording": "cloud"
-                               }
-                  }
- 
-# send a request with headers including
-# a token and meeting details
- 
+"""Create a Zoom meeting""" 
 @api_view(['GET'])
 def CreateMeeting(request):
-    headers = {'authorization': 'Bearer ' + generateToken(),
-               'content-type': 'application/json'}
+    headers = {
+        'authorization': 'Bearer ' + generateToken(),
+        'content-type': 'application/json'
+    }
+
     r = requests.post(
         f'https://api.zoom.us/v2/users/me/meetings',
         headers=headers, data=json.dumps(meetingdetails))
  
-    print("\n creating zoom meeting ... \n")
-    # print(r.text)
-    # converting the output into json and extracting the details
-    print(r.status_code)
     y = json.loads(r.text)
     join_URL = y["join_url"]
     meetingPassword = y["password"]
@@ -512,4 +540,4 @@ def CreateMeeting(request):
 
 @api_view(['GET'])
 def home(request):
-    return Response("Hello")
+    return Response("Welcome to the Techmology API")
