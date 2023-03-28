@@ -9,7 +9,7 @@ export interface FooterSectionProps {
 }
 
 export const Footer = () => (
-    <footer className="w-full h-[600px] sm:h-96 mt-32 flex flex-col justify-center items-center text-white bg-[#3B69B1]">
+    <footer className="absolute bottom-[-650px] w-full h-[600px] sm:h-96 mt-32 flex flex-col justify-center items-center text-white bg-[#3B69B1]">
         <div className="w-full h-[80%] sm:h-[70%] flex justify-around flex-col items-center sm:flex-row">
             {FooterItems.map((item, index) => (
                 <FooterSection key={index} {...item} />

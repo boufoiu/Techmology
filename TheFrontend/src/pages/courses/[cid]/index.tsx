@@ -15,7 +15,7 @@ export async function getServerSideProps({
             headers: { Cookie: cookie }
         });
         const metadata = res.data.find((data) => data.id == (cid as any)) ?? null;
-        const images = res.images.find((data) => data.ID == (cid as any))?.data ?? null;
+        const images = res.images.find((data) => data.ID == (cid as any))?.Data ?? null;
         return { props: { data: { data: metadata, images } } };
     } catch (err) {
         return { props: { data: {} } };

@@ -48,4 +48,12 @@ export const ProductItem = ({ id, Title, Description, Price, images }: ProductIt
     );
 };
 
-export const ProductDetails = () => <>Product Informations</>;
+export const ProductDetails = ({ id, Title, Description, Price, images }: ProductItemProps) => (
+    <>
+        <div className="w-full h-[700px] flex justify-center items-center">
+            <div className="w-[90%] max-w-[1000px] h-[90%] rounded-md border-[1px] border-[#9ca3af]">
+                {Title}
+            </div>
+        </div>
+    </>
+);
