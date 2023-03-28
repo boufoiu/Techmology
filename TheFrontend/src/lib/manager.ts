@@ -1,6 +1,6 @@
-import { APIEndpoints, Options, RequestMethod } from './types';
 import { router } from './builder';
 import { Request } from './request';
+import { APIEndpoints, Options, RequestMethod } from './types';
 
 export class Manager {
     public get api(): APIEndpoints {
@@ -11,11 +11,10 @@ export class Manager {
         const request = new Request(method, url, options);
         const res = await request.make();
 
-        if (res.status >= 500) { 
+        if (res.status >= 500) {
             throw new Error('Internal server error');
-        }
-        else if (res.status >= 400) {
-            throw new Error(`Request failed, http status ${res.status}`)
+        } else if (res.status >= 400) {
+            throw new Error(`Request failed, http status ${res.status}`);
         }
 
         return await res.json();

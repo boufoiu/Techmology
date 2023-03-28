@@ -3,7 +3,5 @@ export async function getServerSideProps() {
 }
 
 export default function Admin() {
-    return (
-        <>Admin page</>
-    );
+    return <>Admin page</>;
 }

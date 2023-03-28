@@ -1,17 +1,11 @@
 export function Courses() {
-    return (
-        <>Course List</>
-    );
+    return <>Course List</>;
 }
 
 export function CourseItem() {
-    return (
-        <>Course Item</>
-    );
+    return <>Course Item</>;
 }
 
 export function CourseDetails() {
-    return (
-        <>Course Informations</>
-    );
+    return <>Course Informations</>;
 }

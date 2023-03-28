@@ -3,7 +3,5 @@ export async function getServerSideProps() {
 }
 
 export default function Profile() {
-    return (
-        <>View User Profile</>
-    );
+    return <>View User Profile</>;
 }

@@ -1,6 +1,7 @@
+import { RequestContext } from 'next/dist/server/base-server';
+
 import { Manager } from '@/lib';
 import { LessonDataResponse, Response } from '@/lib/types';
-import { RequestContext } from 'next/dist/server/base-server';
 
 export async function getServerSideProps({ query: { lid }, req }: RequestContext) {
     const manager = new Manager();
@@ -12,14 +13,12 @@ export async function getServerSideProps({ query: { lid }, req }: RequestContext
             }
         });
         return { props: { data: res } };
-    } catch(err) {
+    } catch (err) {
         return { props: { data: 'error' } };
     }
 }
 
 export default function Lesson({ data }: { data: Response<LessonDataResponse> }) {
     console.log(data);
-    return (
-        <>View Lesson</>
-    );
+    return <>View Lesson</>;
 }

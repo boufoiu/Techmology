@@ -1,4 +1,5 @@
 import { URLSearchParams } from 'url';
+
 import { Options, RequestMethod } from './types';
 
 export class Request {
@@ -13,29 +14,27 @@ export class Request {
     }
 
     public make(): Promise<Response> {
-
         const url = `http://127.0.0.1:8000/${this.url}/`;
-        const headers: any = {
-        };
+        const headers: any = {};
 
         if (this.options.headers)
             Object.entries(this.options.headers).forEach(([key, value]) => (headers[key] = value));
 
-        let body: any; 
+        let body: any;
         if (this.options.files != null) {
             body = new FormData();
             body.append('data', JSON.stringify(this.options.data));
-            this.options.files.forEach(file => body.append('Ressources', file))
+            this.options.files.forEach((file) => body.append('Ressources', file));
         } else if (this.options.data != null) {
             body = JSON.stringify(this.options.data);
         }
-            headers['Content-type'] = 'application/json';
+        headers['Content-type'] = 'application/json';
 
         return fetch(url, {
             method: this.method,
             body,
             headers,
-            credentials: 'same-origin'
+            credentials: 'include'
         });
     }
 }

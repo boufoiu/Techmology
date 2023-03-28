@@ -3,7 +3,5 @@ async function request() {
 }
 
 export default function Create() {
-    return (
-        <>Create Lesson</>
-    );
+    return <>Create Lesson</>;
 }

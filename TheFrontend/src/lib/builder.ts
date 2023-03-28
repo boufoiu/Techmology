@@ -1,7 +1,7 @@
 import { Manager } from './manager';
 import { APIEndpoints, Options } from './types';
 
-const noop = () => {}; 
+const noop = () => {};
 
 const methods = ['get', 'patch', 'post', 'put', 'delete'];
 

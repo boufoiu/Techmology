@@ -7,8 +7,8 @@ export type Options<
     }
 > = Partial<{
     query: T['query'];
-    data: T['data']; 
-    headers: any; 
+    data: T['data'];
+    headers: any;
     files: unknown[];
     userAgentSuffix: string[];
     payloadJson: boolean;
@@ -62,7 +62,7 @@ export type Response<T> = T | 'error';
 export interface APIEndpoints {
     session: Request<{ response: { get: User }; options: never }>;
     new: {
-        course: Request<{ response: { post: LessonMetaData }; options: { post: { data: PostCourseData } }}>;
+        course: Request<{ response: { post: LessonMetaData }; options: { post: { data: PostCourseData } } }>;
         product: Request<{ response: { post: ProductMetaData }; options: { post: { data: PostProductData } } }>;
         makereply: Request<{ response: { post: null }; options: { post: { data: PostReply } } }>;
         subscribecourse: {
@@ -80,7 +80,7 @@ export interface APIEndpoints {
         Product: Request<{ response: { get: Products }; options: { get: { query: ProductFilterQueryParameter } } }>;
     };
     lessons: {
-        (key: number): Request<{ response: { get: LessonDataResponse }, options: never }>
+        (key: number): Request<{ response: { get: LessonDataResponse }; options: never }>;
     };
     createmeeting: Request<{ response: { get: CreateMeetingResponse }; options: never }>;
     login: Request<{ response: { get: { url: string } }; options: never }>;
@@ -95,7 +95,7 @@ export interface User {
 }
 
 export interface PostLesson {
-    data: Omit<LessonMetaData, "id" | "Peer_id">;
+    data: Omit<LessonMetaData, 'id' | 'Peer_id'>;
     ressources: Ressource[];
 }
 
@@ -109,49 +109,53 @@ export interface PostReply {
 
 export interface Products {
     data: ProductMetaData[];
-    images: { ID: number; data: Image[] }[];
+    images: ImageData[];
 }
 
 export interface Product {
     data: ProductMetaData;
-    images: Image[];
+    images: ImageData[];
 }
 
 export interface PostProductData {
-    data: Omit<ProductMetaData, "id">;
-    images: Image[];
+    data: Omit<ProductMetaData, 'id'>;
+    images: ImageData[];
 }
 
 export interface ProductMetaData {
-    id: number;
+    id: string;
+    Title: string;
     Description: string;
-    price: number;
+    Price: number;
 }
 
 export interface Courses {
     data: CourseMetaData[];
-    images: { ID: number; data: Image[] }[];
+    images: ImageData[];
 }
 
 export interface Course {
     data: CourseMetaData;
-    images: Image[];
+    images: ImageData[];
 }
 
 export interface PostCourseData {
-    data: Omit<CourseMetaData, "id">;
-    images: Image[];
+    data: Omit<CourseMetaData, 'id'>;
+    images: ImageData[];
 }
 
 export interface CourseMetaData {
-    id: number;
+    id: string;
     Title: string;
     Description: string;
     Language: string;
 }
 
 //To do
-export interface Image {}
+export interface ImageData {
+    ID: string;
+    Data: string;
+}
 
 export interface LessonDataResponse {
     data: LessonMetaData;
@@ -159,14 +163,14 @@ export interface LessonDataResponse {
 }
 
 export interface LessonMetaData {
-    id: number;
+    id: string;
     Title: string;
     Content: string;
     Peer_id: string;
 }
 
 export interface LessonRessource {
-    ID: number;
+    ID: string;
     Data: string;
 }
 

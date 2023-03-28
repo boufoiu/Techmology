@@ -1,16 +1,22 @@
-import { Manager } from '@/lib';
-import { Products } from '@/lib/types';
+import { ChakraProvider } from '@chakra-ui/react';
 import { RequestContext } from 'next/dist/server/base-server';
 
-export async function getServerSideProps({ req: { headers: { cookie } } }: RequestContext) {
+import { Footer, NavBar, PageHead, ProductsView } from '@/components';
+import { Manager } from '@/lib';
+import { Products } from '@/lib/types';
+
+export async function getServerSideProps({
+    req: {
+        headers: { cookie }
+    }
+}: RequestContext) {
     const manager = new Manager();
     try {
         const res = await manager.api.showfilter.Product.get({
             headers: { Cookie: cookie }
         });
         return { props: { data: res } };
-    }
-    catch (err) {
+    } catch (err) {
         return { props: { data: [] } };
     }
 }
@@ -18,6 +24,13 @@ export async function getServerSideProps({ req: { headers: { cookie } } }: Reque
 export default function ViewProducts({ data }: { data: Products }) {
     console.log(data);
     return (
-        <>View All products</>
+        <>
+            <ChakraProvider>
+                <PageHead title="Products" />
+                <NavBar />
+                <ProductsView {...data} />
+                <Footer />
+            </ChakraProvider>
+        </>
     );
 }
